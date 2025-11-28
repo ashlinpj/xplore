@@ -664,7 +664,7 @@ function AdminDashboard() {
                             alt="Preview"
                             className="w-full h-40 object-cover rounded-lg mt-3"
                             onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/400x200?text=Invalid+URL';
+                              e.target.src = 'https://placehold.co/400x200?text=Invalid+URL';
                             }}
                           />
                         )}
@@ -707,7 +707,7 @@ function AdminDashboard() {
                               alt="Preview"
                               className="w-full h-40 object-cover rounded-lg"
                               onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/400x200?text=Image+Error';
+                                e.target.src = 'https://placehold.co/400x200?text=Image+Error';
                               }}
                             />
                             <div className="absolute top-2 right-2 flex gap-2">
