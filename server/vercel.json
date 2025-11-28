@@ -11,14 +11,5 @@
       "src": "/api/(.*)",
       "dest": "/api/index.js"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "JWT_SECRET": "@jwt_secret",
-    "VAPID_PUBLIC_KEY": "@vapid_public_key",
-    "VAPID_PRIVATE_KEY": "@vapid_private_key",
-    "VAPID_EMAIL": "@vapid_email",
-    "CLIENT_URL": "@client_url",
-    "NODE_ENV": "production"
-  }
+  ]
 }
