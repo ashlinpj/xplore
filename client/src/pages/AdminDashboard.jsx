@@ -163,11 +163,7 @@ function AdminDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate image is uploaded
-    if (!formData.image) {
-      showToast('Please upload an image', 'error');
-      return;
-    }
+    // Image is now optional
     
     setSubmitting(true);
 
