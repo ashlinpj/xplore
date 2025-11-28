@@ -183,8 +183,16 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
     return (
       <Link to={`/article/${article._id}`} className="group relative grid md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-white/10 bg-card hover:border-primary/50 transition-all duration-300 h-[500px]">
         <div className="relative h-full w-full overflow-hidden bg-muted flex items-center justify-center">
-          {/* Image hidden for MVP */}
-          <span className="text-muted-foreground text-sm">Image</span>
+          {article.image ? (
+            <img 
+              src={article.image} 
+              alt={article.title} 
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <span className="text-muted-foreground text-sm">No Image</span>
+          )}
         </div>
         <div className="relative flex flex-col justify-center p-8 md:p-12 bg-card">
           <div className="flex items-center gap-2 mb-4">
@@ -245,8 +253,16 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
   return (
     <Link to={`/article/${article._id}`} className="group flex flex-col bg-card rounded-lg overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-300 h-full">
       <div className="relative aspect-video overflow-hidden bg-muted flex items-center justify-center">
-        {/* Image hidden for MVP */}
-        <span className="text-muted-foreground text-sm">Image</span>
+        {article.image ? (
+          <img 
+            src={article.image} 
+            alt={article.title} 
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        ) : (
+          <span className="text-muted-foreground text-sm">No Image</span>
+        )}
         <div className="absolute top-2 left-2">
           <Badge className="bg-black/50 backdrop-blur-sm border-white/10 text-white">
             {article.category}
