@@ -26,7 +26,8 @@ const articleSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, 'Image is required']
+    required: false,
+    default: ''
   },
   viewers: {
     type: Number,
