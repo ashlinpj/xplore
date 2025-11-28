@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 export function ArticleCard({ article, featured = false, onRefresh }) {
   const [likes, setLikes] = useState(article.likes);

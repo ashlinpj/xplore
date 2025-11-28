@@ -23,7 +23,7 @@ import {
   ImagePlus
 } from 'lucide-react';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 const categories = ['Hardware', 'Wearables', 'Future Tech', 'Space', 'AI', 'Mobile', 'Gaming', 'Science'];
 

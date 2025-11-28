@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar';
 import ArticleCard from '../components/ArticleCard';
 import { Bookmark, Loader2, ArrowLeft } from 'lucide-react';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 function Bookmarks() {
   const { user, token, isAuthenticated } = useAuth();
