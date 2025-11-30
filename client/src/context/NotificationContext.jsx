@@ -32,6 +32,7 @@ export function NotificationProvider({ children }) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [permission, setPermission] = useState('default');
+  const [userPreference, setUserPreference] = useState(false);
   const subscriptionRef = useRef(null);
 
   // Check support and existing subscription on mount
@@ -63,11 +64,14 @@ export function NotificationProvider({ children }) {
       .catch(err => console.log('[Push] SW registration error:', err));
   }, [isSupported]);
 
-  // Subscribe to push notifications (real mobile-like notifications)
-  const subscribe = useCallback(async () => {
+  // Subscribe to push notifications
+  const subscribe = useCallback(async (token = null) => {
     if (!isSupported) {
       throw new Error('Push notifications are not supported in this browser. Try Chrome, Edge, or Firefox.');
     }
+
+    // If no token passed, try to get from localStorage
+    const authToken = token || localStorage.getItem('token');
 
     try {
       setIsLoading(true);
@@ -85,7 +89,7 @@ export function NotificationProvider({ children }) {
 
       // Step 2: Register/get service worker
       console.log('[Push] Getting service worker...');
-      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       
       // Wait for the service worker to be ready
       const swReg = await navigator.serviceWorker.ready;
@@ -99,11 +103,16 @@ export function NotificationProvider({ children }) {
       });
       console.log('[Push] Subscription created:', subscription.endpoint);
 
-      // Step 4: Send subscription to server
+      // Step 4: Send subscription to server with auth token
       console.log('[Push] Saving to server...');
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch(getApiUrl('/api/notifications/subscribe'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ subscription: subscription.toJSON() })
       });
 
@@ -115,6 +124,7 @@ export function NotificationProvider({ children }) {
       console.log('[Push] Subscription saved! You will now receive push notifications.');
       subscriptionRef.current = subscription;
       setIsSubscribed(true);
+      setUserPreference(true);
       
       // Show a test notification
       await swReg.showNotification('🔔 Notifications Enabled!', {
@@ -135,16 +145,24 @@ export function NotificationProvider({ children }) {
   }, [isSupported]);
 
   // Unsubscribe from push notifications
-  const unsubscribe = useCallback(async () => {
+  const unsubscribe = useCallback(async (token = null) => {
+    // If no token passed, try to get from localStorage
+    const authToken = token || localStorage.getItem('token');
+
     try {
       setIsLoading(true);
       console.log('[Push] Unsubscribing...');
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
 
       if (subscriptionRef.current) {
         // Unsubscribe on server
         await fetch(getApiUrl('/api/notifications/unsubscribe'), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ endpoint: subscriptionRef.current.endpoint })
         });
 
@@ -155,6 +173,7 @@ export function NotificationProvider({ children }) {
 
       subscriptionRef.current = null;
       setIsSubscribed(false);
+      setUserPreference(false);
       
       return true;
     } catch (error) {
@@ -164,6 +183,35 @@ export function NotificationProvider({ children }) {
       setIsLoading(false);
     }
   }, []);
+
+  // Sync with user preference when logged in (called from AuthContext)
+  const syncWithUserPreference = useCallback(async (token) => {
+    if (!isSupported || !token) return;
+    
+    try {
+      console.log('[Push] Syncing with user preference...');
+      const response = await fetch(getApiUrl('/api/notifications/preference'), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUserPreference(data.pushNotificationsEnabled);
+        
+        // If user has notifications enabled but this device isn't subscribed, auto-subscribe
+        if (data.pushNotificationsEnabled && !subscriptionRef.current) {
+          console.log('[Push] User preference is enabled, auto-subscribing this device...');
+          try {
+            await subscribe(token);
+          } catch (error) {
+            console.log('[Push] Auto-subscribe failed (permission may be needed):', error.message);
+          }
+        }
+      }
+    } catch (error) {
+      console.log('[Push] Failed to sync preference:', error);
+    }
+  }, [isSupported, subscribe]);
 
   // Toggle subscription
   const toggleSubscription = useCallback(async () => {
@@ -179,9 +227,11 @@ export function NotificationProvider({ children }) {
     isSubscribed,
     isLoading,
     permission,
+    userPreference,
     subscribe,
     unsubscribe,
-    toggleSubscription
+    toggleSubscription,
+    syncWithUserPreference
   };
 
   return (

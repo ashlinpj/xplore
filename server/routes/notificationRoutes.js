@@ -1,7 +1,12 @@
 import express from 'express';
 import webpush from 'web-push';
+import dotenv from 'dotenv';
 import Subscription from '../models/Subscription.js';
+import User from '../models/User.js';
 import { protect, optionalAuth } from '../middleware/auth.js';
+
+// Ensure environment variables are loaded
+dotenv.config();
 
 const router = express.Router();
 
@@ -10,12 +15,16 @@ const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
 const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:admin@xplore.com';
 
-// Configure web-push
-webpush.setVapidDetails(
-  VAPID_EMAIL,
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
+// Configure web-push only if VAPID keys are available
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    VAPID_EMAIL,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+  );
+} else {
+  console.warn('VAPID keys not configured. Push notifications will not work.');
+}
 
 // @desc    Get VAPID public key
 // @route   GET /api/notifications/vapid-public-key
@@ -46,18 +55,22 @@ router.post('/subscribe', optionalAuth, async (req, res) => {
         existingSub.userId = req.user._id;
       }
       await existingSub.save();
-      return res.json({ message: 'Subscription updated', subscribed: true });
+    } else {
+      // Create new subscription
+      const newSubscription = new Subscription({
+        endpoint: subscription.endpoint,
+        keys: subscription.keys,
+        userId: req.user?._id || null,
+        isActive: true
+      });
+      await newSubscription.save();
     }
 
-    // Create new subscription
-    const newSubscription = new Subscription({
-      endpoint: subscription.endpoint,
-      keys: subscription.keys,
-      userId: req.user?._id || null,
-      isActive: true
-    });
+    // If user is authenticated, update their preference
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, { pushNotificationsEnabled: true });
+    }
 
-    await newSubscription.save();
     res.status(201).json({ message: 'Subscribed to notifications', subscribed: true });
   } catch (error) {
     console.error('Subscribe error:', error);
@@ -67,8 +80,8 @@ router.post('/subscribe', optionalAuth, async (req, res) => {
 
 // @desc    Unsubscribe from push notifications
 // @route   POST /api/notifications/unsubscribe
-// @access  Public
-router.post('/unsubscribe', async (req, res) => {
+// @access  Public (with optional auth)
+router.post('/unsubscribe', optionalAuth, async (req, res) => {
   try {
     const { endpoint } = req.body;
     
@@ -81,6 +94,11 @@ router.post('/unsubscribe', async (req, res) => {
     if (subscription) {
       subscription.isActive = false;
       await subscription.save();
+    }
+
+    // If user is authenticated, update their preference
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, { pushNotificationsEnabled: false });
     }
 
     res.json({ message: 'Unsubscribed from notifications', subscribed: false });
@@ -106,6 +124,42 @@ router.post('/status', async (req, res) => {
   } catch (error) {
     console.error('Status check error:', error);
     res.status(500).json({ message: 'Failed to check status', error: error.message });
+  }
+});
+
+// @desc    Get user's notification preference
+// @route   GET /api/notifications/preference
+// @access  Private
+router.get('/preference', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.json({ 
+      pushNotificationsEnabled: user?.pushNotificationsEnabled || false 
+    });
+  } catch (error) {
+    console.error('Get preference error:', error);
+    res.status(500).json({ message: 'Failed to get preference', error: error.message });
+  }
+});
+
+// @desc    Set user's notification preference
+// @route   POST /api/notifications/preference
+// @access  Private
+router.post('/preference', protect, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+    
+    await User.findByIdAndUpdate(req.user._id, { 
+      pushNotificationsEnabled: enabled 
+    });
+    
+    res.json({ 
+      pushNotificationsEnabled: enabled,
+      message: enabled ? 'Notifications enabled' : 'Notifications disabled'
+    });
+  } catch (error) {
+    console.error('Set preference error:', error);
+    res.status(500).json({ message: 'Failed to set preference', error: error.message });
   }
 });
 

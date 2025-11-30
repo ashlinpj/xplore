@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Label } from './ui/Label';
@@ -17,6 +18,7 @@ import { User, Lock, Mail } from 'lucide-react';
 
 export function AuthModal() {
   const { login, register } = useAuth();
+  const { syncWithUserPreference } = useNotifications();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +45,12 @@ export function AuthModal() {
       setLoginUsername('');
       setLoginPassword('');
       
+      // Sync push notification preference for this device
+      const token = localStorage.getItem('token');
+      if (token) {
+        syncWithUserPreference(token);
+      }
+      
       // Redirect admin to admin dashboard
       if (result.user?.role === 'admin') {
         navigate('/admin');
@@ -63,6 +71,12 @@ export function AuthModal() {
       setRegUsername('');
       setRegEmail('');
       setRegPassword('');
+      
+      // Sync push notification preference for this device
+      const token = localStorage.getItem('token');
+      if (token) {
+        syncWithUserPreference(token);
+      }
     }
   };
 

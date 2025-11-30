@@ -227,7 +227,7 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
               <Button 
                 size="sm" 
                 variant="ghost" 
-                className={`${isLiked ? 'text-green-400' : 'text-muted-foreground'} hover:text-green-400`} 
+                className={`${isLiked ? 'text-green-400' : 'text-muted-foreground'} hover:bg-transparent`} 
                 onClick={handleLike}
               >
                 <ThumbsUp className={`w-4 h-4 mr-1 ${isLiked ? 'fill-current' : ''}`} /> {likes}
@@ -235,12 +235,12 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
               <Button 
                 size="sm" 
                 variant="ghost" 
-                className={`${isBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`} 
+                className={`${isBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:bg-transparent`} 
                 onClick={handleBookmark}
               >
                 <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
               </Button>
-              <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-white" onClick={handleShare}>
+              <Button size="sm" variant="ghost" className="text-muted-foreground hover:bg-transparent" onClick={handleShare}>
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
@@ -305,7 +305,7 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 ${isLiked ? 'text-green-400' : 'hover:text-green-400'}`} 
+              className={`h-8 w-8 hover:bg-transparent ${isLiked ? 'text-green-400' : ''}`} 
               onClick={handleLike}
             >
               <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-current' : ''}`} />
@@ -313,7 +313,7 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 ${isDisliked ? 'text-red-400' : 'hover:text-red-400'}`} 
+              className={`h-8 w-8 hover:bg-transparent ${isDisliked ? 'text-red-400' : ''}`} 
               onClick={handleDislike}
             >
               <ThumbsDown className={`w-3 h-3 ${isDisliked ? 'fill-current' : ''}`} />
@@ -321,7 +321,7 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 ${isBookmarked ? 'text-primary' : 'hover:text-primary'}`} 
+              className={`h-8 w-8 hover:bg-transparent ${isBookmarked ? 'text-primary' : ''}`} 
               onClick={handleBookmark}
             >
               <Bookmark className={`w-3 h-3 ${isBookmarked ? 'fill-current' : ''}`} />
@@ -329,7 +329,7 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-8 w-8 hover:text-blue-400" 
+              className="h-8 w-8 hover:bg-transparent" 
               onClick={handleShare}
             >
               <Share2 className="w-3 h-3" />

@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import { NotificationProvider } from './context/NotificationContext';
+import { NotificationProvider, useNotifications } from './context/NotificationContext';
 import { Toaster } from './components/ui/Toaster';
 import Home from './pages/Home';
 import ArticlePage from './pages/Article';
@@ -9,12 +10,27 @@ import AdminDashboard from './pages/AdminDashboard';
 import Bookmarks from './pages/Bookmarks';
 import NotFound from './pages/NotFound';
 
+// Component to sync notifications when user is already logged in
+function NotificationSync() {
+  const { isAuthenticated, token } = useAuth();
+  const { syncWithUserPreference } = useNotifications();
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      syncWithUserPreference(token);
+    }
+  }, [isAuthenticated, token, syncWithUserPreference]);
+
+  return null;
+}
+
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ToastProvider>
+      <ToastProvider>
+        <AuthProvider>
           <NotificationProvider>
+            <NotificationSync />
             <Toaster />
             <Routes>
               <Route path="/" element={<Home />} />
@@ -24,8 +40,8 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </NotificationProvider>
-        </ToastProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 }

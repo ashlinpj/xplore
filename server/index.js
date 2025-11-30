@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
+// Load environment variables FIRST before any other imports
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
@@ -8,9 +11,6 @@ import authRoutes from './routes/authRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-
-// Load environment variables
-dotenv.config();
 
 // ES Module fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
