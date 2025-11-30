@@ -14,11 +14,22 @@ import {
   DropdownMenuTrigger 
 } from './ui/DropdownMenu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
-import { Search, Menu, X, Bell, BellOff, BellRing, Bookmark, Shield, LogOut, Settings, User, Home, Loader2 } from 'lucide-react';
+import { Search, Menu, X, Bell, BellOff, BellRing, Bookmark, Shield, LogOut, Settings, User, Home, Loader2, Check, Trash2 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 export function Navbar() {
   const { user, logout, isAdmin } = useAuth();
-  const { isSupported, isSubscribed, isLoading: notifLoading, toggleSubscription } = useNotifications();
+  const { 
+    isSupported, 
+    isSubscribed, 
+    isLoading: notifLoading, 
+    toggleSubscription,
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    clearNotifications
+  } = useNotifications();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -148,23 +159,118 @@ export function Navbar() {
               {searchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
             </Button>
             
-            {/* Notification Toggle Button - Always show on desktop */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className={`hidden md:flex ${isSubscribed ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
-              onClick={handleNotificationToggle}
-              disabled={notifLoading}
-              title={isSubscribed ? 'Notifications On - Click to turn off' : 'Turn on notifications'}
-            >
-              {notifLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : isSubscribed ? (
-                <BellRing className="w-5 h-5" />
-              ) : (
-                <Bell className="w-5 h-5" />
-              )}
-            </Button>
+            {/* Notification Dropdown - Always show on desktop */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`hidden md:flex relative ${isSubscribed ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                >
+                  {notifLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : isSubscribed ? (
+                    <BellRing className="w-5 h-5" />
+                  ) : (
+                    <Bell className="w-5 h-5" />
+                  )}
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-80 bg-card border-white/10" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">Notifications</span>
+                    <div className="flex gap-1">
+                      {notifications.length > 0 && (
+                        <>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-primary"
+                            onClick={(e) => { e.preventDefault(); markAllAsRead(); }}
+                          >
+                            <Check className="w-3 h-3 mr-1" />
+                            Read all
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-red-400"
+                            onClick={(e) => { e.preventDefault(); clearNotifications(); }}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-white/10" />
+                
+                {/* Notification toggle */}
+                <DropdownMenuItem 
+                  className="focus:bg-white/5 cursor-pointer"
+                  onClick={handleNotificationToggle}
+                  disabled={notifLoading}
+                >
+                  {isSubscribed ? (
+                    <>
+                      <BellOff className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">Turn off notifications</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="w-4 h-4 mr-2 text-primary" />
+                      <span className="text-primary">Turn on notifications</span>
+                    </>
+                  )}
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator className="bg-white/10" />
+                
+                {/* Notification list */}
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="py-8 text-center text-muted-foreground text-sm">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No notifications yet</p>
+                      {!isSubscribed && (
+                        <p className="text-xs mt-1">Enable notifications to get updates</p>
+                      )}
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <DropdownMenuItem 
+                        key={notif.id}
+                        className={`focus:bg-white/5 cursor-pointer flex flex-col items-start gap-1 py-3 ${!notif.read ? 'bg-primary/5' : ''}`}
+                        onClick={() => {
+                          markAsRead(notif.id);
+                          if (notif.url) navigate(notif.url);
+                        }}
+                      >
+                        <div className="flex items-start gap-2 w-full">
+                          {!notif.read && (
+                            <span className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0" />
+                          )}
+                          <div className={`flex-1 ${notif.read ? 'pl-4' : ''}`}>
+                            <p className="font-medium text-sm line-clamp-1">{notif.title}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{notif.body}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {user ? (
               <DropdownMenu>
@@ -349,21 +455,54 @@ export function Navbar() {
                   handleNotificationToggle();
                 }}
                 disabled={notifLoading}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg w-full transition-colors ${
+                className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg w-full transition-colors ${
                   isSubscribed 
                     ? 'text-primary bg-primary/10' 
                     : 'text-muted-foreground hover:bg-white/5 hover:text-white'
                 }`}
               >
-                {notifLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : isSubscribed ? (
-                  <BellRing className="w-5 h-5" />
-                ) : (
-                  <BellOff className="w-5 h-5" />
+                <div className="flex items-center gap-3">
+                  {notifLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : isSubscribed ? (
+                    <BellRing className="w-5 h-5" />
+                  ) : (
+                    <BellOff className="w-5 h-5" />
+                  )}
+                  {isSubscribed ? 'Notifications On' : 'Enable Notifications'}
+                </div>
+                {unreadCount > 0 && (
+                  <span className="w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
                 )}
-                {isSubscribed ? 'Notifications On' : 'Enable Notifications'}
               </button>
+              
+              {/* Recent notifications in mobile menu */}
+              {notifications.length > 0 && (
+                <div className="mt-2 ml-3 mr-1 space-y-1">
+                  <p className="text-xs text-muted-foreground px-2 mb-1">Recent:</p>
+                  {notifications.slice(0, 3).map((notif) => (
+                    <button
+                      key={notif.id}
+                      onClick={() => {
+                        markAsRead(notif.id);
+                        if (notif.url) navigate(notif.url);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-2 py-2 rounded text-xs hover:bg-white/5 ${!notif.read ? 'bg-primary/5' : ''}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!notif.read && <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1 flex-shrink-0" />}
+                        <div className={!notif.read ? '' : 'pl-3.5'}>
+                          <p className="line-clamp-1 font-medium">{notif.title}</p>
+                          <p className="text-muted-foreground line-clamp-1">{notif.body}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
               
               <div className="pt-4 pb-2">
                 <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Categories</p>

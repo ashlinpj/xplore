@@ -54,8 +54,24 @@ self.addEventListener('push', (event) => {
     ]
   };
 
+  // Send message to all clients (the app) so they can update in-app notification badge
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    Promise.all([
+      self.registration.showNotification(data.title, options),
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'PUSH_RECEIVED',
+            payload: {
+              title: data.title,
+              body: data.body,
+              image: data.image,
+              data: data.data
+            }
+          });
+        });
+      })
+    ])
   );
 });
 
