@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { NotificationProvider, useNotifications } from './context/NotificationContext';
 import { Toaster } from './components/ui/Toaster';
+import { NotificationPopup } from './components/NotificationPopup';
 import Home from './pages/Home';
 import ArticlePage from './pages/Article';
 import AdminDashboard from './pages/AdminDashboard';
@@ -31,6 +32,7 @@ function App() {
         <AuthProvider>
           <NotificationProvider>
             <NotificationSync />
+            <NotificationPopup />
             <Toaster />
             <Routes>
               <Route path="/" element={<Home />} />

@@ -35,7 +35,9 @@ export function NotificationProvider({ children }) {
   const [userPreference, setUserPreference] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [popupNotification, setPopupNotification] = useState(null);
   const subscriptionRef = useRef(null);
+  const popupTimeoutRef = useRef(null);
 
   // Load notifications from localStorage on mount
   useEffect(() => {
@@ -66,12 +68,44 @@ export function NotificationProvider({ children }) {
       if (event.data && event.data.type === 'PUSH_RECEIVED') {
         console.log('[Notifications] Received from SW:', event.data.payload);
         addNotification(event.data.payload);
+        showPopup(event.data.payload);
       }
     };
 
     navigator.serviceWorker.addEventListener('message', handleMessage);
     return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
   }, [isSupported]);
+
+  // Show popup notification
+  const showPopup = useCallback((notification) => {
+    // Clear any existing timeout
+    if (popupTimeoutRef.current) {
+      clearTimeout(popupTimeoutRef.current);
+    }
+
+    const popup = {
+      id: Date.now(),
+      title: notification.title || 'New Notification',
+      body: notification.body || '',
+      url: notification.data?.url || '/',
+      image: notification.image
+    };
+
+    setPopupNotification(popup);
+
+    // Auto-dismiss after 6 seconds
+    popupTimeoutRef.current = setTimeout(() => {
+      setPopupNotification(null);
+    }, 6000);
+  }, []);
+
+  // Dismiss popup
+  const dismissPopup = useCallback(() => {
+    if (popupTimeoutRef.current) {
+      clearTimeout(popupTimeoutRef.current);
+    }
+    setPopupNotification(null);
+  }, []);
 
   // Add a new notification
   const addNotification = useCallback((notification) => {
@@ -306,6 +340,7 @@ export function NotificationProvider({ children }) {
     userPreference,
     notifications,
     unreadCount,
+    popupNotification,
     subscribe,
     unsubscribe,
     toggleSubscription,
@@ -313,7 +348,9 @@ export function NotificationProvider({ children }) {
     addNotification,
     markAsRead,
     markAllAsRead,
-    clearNotifications
+    clearNotifications,
+    showPopup,
+    dismissPopup
   };
 
   return (
