@@ -33,14 +33,12 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const searchInputRef = useRef(null);
 
-  // Focus search input when search opens
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [searchOpen]);
 
-  // Close mobile menu when screen resizes to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -51,7 +49,6 @@ export function Navbar() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -86,7 +83,6 @@ export function Navbar() {
   };
 
   const handleNotificationToggle = async () => {
-    // Check if push is supported
     if (!isSupported) {
       showToast('Push notifications are not supported in this browser. Try Chrome, Edge, or Firefox.', 'error');
       return;
@@ -98,7 +94,6 @@ export function Navbar() {
       if (wasSubscribed) {
         showToast('Notifications turned off', 'success');
       }
-      // Success message for subscribe is shown via the test notification
     } catch (error) {
       console.error('Notification toggle error:', error);
       if (error.message?.includes('denied')) {

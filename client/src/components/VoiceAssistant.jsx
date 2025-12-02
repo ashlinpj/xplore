@@ -13,7 +13,6 @@ import { Mic, MicOff, Phone, PhoneOff, Bot, Loader2, Volume2, X } from 'lucide-r
 import { Button } from './ui/Button';
 import { getApiUrl } from '../lib/api';
 
-// Connection state component
 function ConnectionStatus() {
   const connectionState = useConnectionState();
   
@@ -32,13 +31,11 @@ function ConnectionStatus() {
   );
 }
 
-// Voice assistant visualizer component
 function VoiceVisualizer() {
   const { state, audioTrack, agentTranscriptions, agentAudioTrack } = useVoiceAssistant();
   
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Agent state indicator */}
       <div className="text-center">
         <div className={`text-sm font-medium ${
           state === 'listening' ? 'text-green-400' :
@@ -54,7 +51,6 @@ function VoiceVisualizer() {
         </div>
       </div>
       
-      {/* Audio visualizer */}
       <div className="w-full h-24 bg-muted/30 rounded-lg overflow-hidden flex items-center justify-center">
         {agentAudioTrack ? (
           <BarVisualizer
@@ -74,7 +70,6 @@ function VoiceVisualizer() {
         )}
       </div>
       
-      {/* Recent transcription */}
       {agentTranscriptions && agentTranscriptions.length > 0 && (
         <div className="w-full max-h-32 overflow-y-auto bg-muted/20 rounded-lg p-3">
           <p className="text-sm text-muted-foreground">
@@ -86,7 +81,6 @@ function VoiceVisualizer() {
   );
 }
 
-// Main room content
 function RoomContent({ onDisconnect }) {
   const room = useMaybeRoomContext();
   
@@ -120,18 +114,15 @@ function RoomContent({ onDisconnect }) {
   );
 }
 
-// Main Voice Assistant Component
 export function VoiceAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionDetails, setConnectionDetails] = useState(null);
   const [error, setError] = useState(null);
 
-  // Check for microphone permission before connecting
   const requestMicrophonePermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Stop all tracks immediately after getting permission
       stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (err) {
@@ -154,17 +145,14 @@ export function VoiceAssistant() {
     setError(null);
     
     try {
-      // First, request microphone permission (especially important on mobile)
       const hasMicPermission = await requestMicrophonePermission();
       if (!hasMicPermission) {
         setIsConnecting(false);
         return;
       }
 
-      // Generate a unique room name and get user name
       const roomName = `xplore-ai-${Date.now()}`;
       
-      // Try to get user name from localStorage (set during login)
       let userName = 'Guest';
       try {
         const storedUser = localStorage.getItem('user');
@@ -178,7 +166,6 @@ export function VoiceAssistant() {
       
       const participantName = userName;
       
-      // Get token from server
       const response = await fetch(getApiUrl('/api/livekit/token'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -216,7 +203,6 @@ export function VoiceAssistant() {
     connectToRoom();
   }, [connectToRoom]);
 
-  // Floating action button when closed
   if (!isOpen) {
     return (
       <button
@@ -234,7 +220,6 @@ export function VoiceAssistant() {
 
   return (
     <div className="fixed bottom-0 sm:bottom-6 right-0 sm:right-6 z-50 w-full sm:w-80 bg-card border-t sm:border border-white/10 sm:rounded-xl shadow-2xl overflow-hidden max-h-[80vh] sm:max-h-none">
-      {/* Header */}
       <div className="bg-primary/10 border-b border-white/10 p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -257,7 +242,6 @@ export function VoiceAssistant() {
         </div>
       </div>
       
-      {/* Content */}
       <div className="p-4">
         {error && (
           <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -300,7 +284,6 @@ export function VoiceAssistant() {
             }}
             onDisconnected={(reason) => {
               console.log('Disconnected from room, reason:', reason);
-              // Don't immediately show error - user might have intentionally disconnected
               setConnectionDetails(null);
             }}
             onError={(err) => {

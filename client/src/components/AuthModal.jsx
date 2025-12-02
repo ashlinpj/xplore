@@ -23,11 +23,9 @@ export function AuthModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Login form state
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
-  // Register form state
   const [regUsername, setRegUsername] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -45,13 +43,11 @@ export function AuthModal() {
       setLoginUsername('');
       setLoginPassword('');
       
-      // Sync push notification preference for this device
       const token = localStorage.getItem('token');
       if (token) {
         syncWithUserPreference(token);
       }
       
-      // Redirect admin to admin dashboard
       if (result.user?.role === 'admin') {
         navigate('/admin');
       }
@@ -72,7 +68,6 @@ export function AuthModal() {
       setRegEmail('');
       setRegPassword('');
       
-      // Sync push notification preference for this device
       const token = localStorage.getItem('token');
       if (token) {
         syncWithUserPreference(token);

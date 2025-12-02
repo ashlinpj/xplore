@@ -24,7 +24,6 @@ export function BugReportButton() {
   const handleOpen = () => {
     setIsOpen(true);
     setIsSubmitted(false);
-    // Pre-fill user info if logged in
     if (isAuthenticated && user) {
       setFormData(prev => ({
         ...prev,
@@ -32,7 +31,6 @@ export function BugReportButton() {
         reporterEmail: user.email || ''
       }));
     }
-    // Set current page
     setFormData(prev => ({
       ...prev,
       page: window.location.pathname

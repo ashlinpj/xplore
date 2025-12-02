@@ -12,7 +12,6 @@ import NotFound from './pages/NotFound';
 import VoiceAssistant from './components/VoiceAssistant';
 import BugReportButton from './components/BugReportButton';
 
-// Component to sync notifications when user is already logged in
 function NotificationSync() {
   const { isAuthenticated, token } = useAuth();
   const { syncWithUserPreference } = useNotifications();

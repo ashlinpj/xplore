@@ -18,7 +18,6 @@ export function ToastProvider({ children }) {
     return id;
   }, []);
 
-  // Simple showToast helper
   const showToast = useCallback((message, type = 'default') => {
     return toast({
       title: type === 'error' ? 'Error' : type === 'success' ? 'Success' : 'Info',
@@ -41,7 +40,6 @@ export function ToastProvider({ children }) {
 export function useToast() {
   const context = useContext(ToastContext);
   if (context === undefined) {
-    // Return a dummy implementation if outside provider (for AuthContext)
     return {
       toast: () => {},
       showToast: () => {},

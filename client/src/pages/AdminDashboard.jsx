@@ -58,7 +58,7 @@ function AdminDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  const [useImageUrl, setUseImageUrl] = useState(false); // Default to upload for Cloudinary
+  const [useImageUrl, setUseImageUrl] = useState(false);
   const [bugs, setBugs] = useState([]);
   const [bugsLoading, setBugsLoading] = useState(false);
 
@@ -191,27 +191,23 @@ function AdminDashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       showToast('Only image files are allowed (jpeg, jpg, png, gif, webp)', 'error');
       return;
     }
 
-    // Validate file size (10MB for Cloudinary)
     if (file.size > 10 * 1024 * 1024) {
       showToast('File is too large. Maximum size is 10MB', 'error');
       return;
     }
 
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
 
-    // Upload file to Cloudinary
     setUploading(true);
     const formDataUpload = new FormData();
     formDataUpload.append('image', file);
@@ -243,15 +239,13 @@ function AdminDashboard() {
     }
   };
 
-  // Handle multiple media uploads (images and videos)
   const handleMediaUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    // Validate files
     const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxSize = 50 * 1024 * 1024;
 
     for (const file of files) {
       if (![...allowedImageTypes, ...allowedVideoTypes].includes(file.type)) {
@@ -316,8 +310,6 @@ function AdminDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Image is now optional
     
     setSubmitting(true);
 
@@ -895,7 +887,6 @@ function AdminDashboard() {
                   {/* Image Input Area */}
                   <div className="space-y-3">
                     {useImageUrl ? (
-                      /* URL Input */
                       <div>
                         <input
                           type="url"
@@ -920,7 +911,6 @@ function AdminDashboard() {
                         )}
                       </div>
                     ) : (
-                      /* File Upload */
                       <>
                         <input
                           type="file"

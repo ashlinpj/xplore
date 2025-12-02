@@ -32,7 +32,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
       return;
     }
     
-    // Optimistic update
     const wasLiked = isLiked;
     const wasDisliked = isDisliked;
     setIsLiked(!wasLiked);
@@ -54,7 +53,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
         setIsDisliked(data.isDisliked);
       }
     } catch (error) {
-      // Revert on error
       setIsLiked(wasLiked);
       setIsDisliked(wasDisliked);
     }
@@ -73,7 +71,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
       return;
     }
     
-    // Optimistic update
     const wasLiked = isLiked;
     const wasDisliked = isDisliked;
     setIsDisliked(!wasDisliked);
@@ -95,7 +92,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
         setIsDisliked(data.isDisliked);
       }
     } catch (error) {
-      // Revert on error
       setIsLiked(wasLiked);
       setIsDisliked(wasDisliked);
     }
@@ -107,10 +103,8 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
     
     const shareUrl = `${window.location.origin}/article/${article._id}`;
     
-    // Copy to clipboard
     await navigator.clipboard.writeText(shareUrl);
     
-    // If authenticated, track share
     if (isAuthenticated && token) {
       try {
         const response = await fetch(`${API_URL}/articles/${article._id}/share`, {
@@ -123,7 +117,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
           setShares(data.shares);
         }
       } catch (error) {
-        // Silently fail share tracking
       }
     }
     
@@ -146,7 +139,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
       return;
     }
     
-    // Optimistic update
     const wasBookmarked = isBookmarked;
     setIsBookmarked(!wasBookmarked);
     
@@ -168,7 +160,6 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
         if (onRefresh) onRefresh();
       }
     } catch (error) {
-      // Revert on error
       setIsBookmarked(wasBookmarked);
       toast({
         title: "Error",

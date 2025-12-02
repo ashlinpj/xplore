@@ -50,7 +50,6 @@ export function AuthProvider({ children }) {
         title: 'Welcome back!',
         description: `Logged in as ${data.username}`,
       });
-      // Return isAdmin flag for navigation
       return { success: true, user: data, isAdmin: data.role === 'admin' };
     } catch (error) {
       toast({
@@ -72,10 +71,8 @@ export function AuthProvider({ children }) {
     });
   };
 
-  // Check if user is admin
   const isAdmin = user?.role === 'admin';
   
-  // Get token
   const token = localStorage.getItem('token');
 
   return (

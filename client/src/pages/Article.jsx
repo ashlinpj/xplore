@@ -10,7 +10,6 @@ import { format } from 'date-fns';
 import { articlesAPI } from '../lib/api';
 import { useToast } from '../context/ToastContext';
 
-// Mock article for fallback
 const MOCK_ARTICLE = {
   _id: "1",
   title: "The Quantum Leap: Next-Gen Processors Are Here",
