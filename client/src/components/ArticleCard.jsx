@@ -279,8 +279,8 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
           {article.excerpt}
         </p>
         
-        <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5 mt-auto">
-          <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
+        <div className="flex flex-col gap-3 pt-3 border-t border-white/5 mt-auto">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
               {article.viewers?.toLocaleString() || 0}
@@ -291,27 +291,27 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             </span>
           </div>
           
-          <div className="flex gap-1">
+          <div className="flex justify-between gap-1">
             <button 
-              className={`p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
+              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
               onClick={handleLike}
             >
               <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className={`p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation ${isDisliked ? 'text-red-400' : 'text-muted-foreground'}`} 
+              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isDisliked ? 'text-red-400' : 'text-muted-foreground'}`} 
               onClick={handleDislike}
             >
               <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className={`p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
+              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
               onClick={handleBookmark}
             >
               <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className="p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation text-muted-foreground" 
+              className="flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center text-muted-foreground" 
               onClick={handleShare}
             >
               <Share2 className="w-5 h-5" />
