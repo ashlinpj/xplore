@@ -5,6 +5,7 @@ import connectDB from '../config/db.js';
 import authRoutes from '../routes/authRoutes.js';
 import articleRoutes from '../routes/articleRoutes.js';
 import notificationRoutes from '../routes/notificationRoutes.js';
+import livekitRoutes from '../routes/livekitRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -48,6 +49,7 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/livekit', livekitRoutes);
 
 // Note: File uploads won't work on Vercel serverless - use cloud storage like Cloudinary instead
 
