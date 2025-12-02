@@ -245,14 +245,26 @@ export function VoiceAssistant() {
             connect={true}
             audio={true}
             video={false}
-            onDisconnected={() => {
-              console.log('Disconnected from room');
+            options={{
+              disconnectOnPageLeave: false,
+              adaptiveStream: false,
+            }}
+            onDisconnected={(reason) => {
+              console.log('Disconnected from room, reason:', reason);
+              // Only clear connection if not a temporary disconnect
+              if (reason !== 'DUPLICATE_IDENTITY') {
+                setError('Disconnected: ' + (reason || 'Connection lost'));
+              }
               setConnectionDetails(null);
             }}
             onError={(err) => {
               console.error('LiveKit error:', err);
               setError(err.message || 'Connection failed');
               setConnectionDetails(null);
+            }}
+            onMediaDeviceFailure={(failure) => {
+              console.error('Media device failure:', failure);
+              setError('Microphone access failed. Please allow microphone permissions.');
             }}
           >
             <RoomContent onDisconnect={handleDisconnect} />
