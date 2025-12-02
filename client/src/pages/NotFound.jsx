@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
-import { Home, ArrowLeft } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -16,17 +16,11 @@ export default function NotFound() {
           The page you're looking for doesn't exist or has been moved to another dimension.
         </p>
         
-        <div className="flex gap-4 justify-center pt-4">
-          <Button asChild variant="outline" className="gap-2">
-            <Link to="/">
-              <ArrowLeft className="w-4 h-4" />
-              Go Back
-            </Link>
-          </Button>
+        <div className="flex justify-center pt-4">
           <Button asChild className="gap-2">
             <Link to="/">
               <Home className="w-4 h-4" />
-              Home
+              Back to Home
             </Link>
           </Button>
         </div>
