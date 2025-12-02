@@ -8,7 +8,6 @@ import {
   useConnectionState,
   useMaybeRoomContext,
 } from '@livekit/components-react';
-import { RoomOptions, ConnectionState } from 'livekit-client';
 import '@livekit/components-styles';
 import { Mic, MicOff, Phone, PhoneOff, Bot, Loader2, Volume2, X } from 'lucide-react';
 import { Button } from './ui/Button';
