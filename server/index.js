@@ -12,6 +12,8 @@ import articleRoutes from './routes/articleRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import livekitRoutes from './routes/livekitRoutes.js';
+import cleanupRoutes from './routes/cleanupRoutes.js';
+import { cleanupExpiredArticles } from './services/articleCleanup.js';
 
 // ES Module fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -56,6 +58,23 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/livekit', livekitRoutes);
+app.use('/api/cleanup', cleanupRoutes);
+
+// Run cleanup on server start and then every 6 hours
+const runCleanup = async () => {
+  try {
+    const result = await cleanupExpiredArticles();
+    console.log(`Cleanup completed: ${result.deleted} articles deleted`);
+  } catch (error) {
+    console.error('Cleanup failed:', error.message);
+  }
+};
+
+// Run cleanup after 10 seconds (to allow DB connection)
+setTimeout(runCleanup, 10000);
+
+// Run cleanup every 6 hours
+setInterval(runCleanup, 6 * 60 * 60 * 1000);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

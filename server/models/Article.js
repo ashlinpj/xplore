@@ -29,6 +29,26 @@ const articleSchema = new mongoose.Schema({
     required: false,
     default: ''
   },
+  // Media support - images and videos
+  media: [{
+    type: {
+      type: String,
+      enum: ['image', 'video'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    publicId: {
+      type: String, // Cloudinary public ID for deletion
+      required: false
+    },
+    thumbnail: {
+      type: String, // Video thumbnail
+      required: false
+    }
+  }],
   viewers: {
     type: Number,
     default: 0
@@ -68,6 +88,15 @@ const articleSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  // Auto-deletion fields
+  expiresAt: {
+    type: Date,
+    default: () => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
+  },
+  isProtected: {
+    type: Boolean,
+    default: false // Set to true if bookmarked by any user
   },
   createdAt: {
     type: Date,

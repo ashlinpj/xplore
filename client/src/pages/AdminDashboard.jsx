@@ -20,7 +20,10 @@ import {
   BarChart3,
   Radio,
   Upload,
-  ImagePlus
+  ImagePlus,
+  Video,
+  Clock,
+  Bookmark
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
@@ -32,6 +35,7 @@ function AdminDashboard() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const mediaInputRef = useRef(null);
   
   const [stats, setStats] = useState(null);
   const [articles, setArticles] = useState([]);
@@ -45,12 +49,13 @@ function AdminDashboard() {
     author: '',
     category: 'AI',
     image: '',
+    media: [],
     isLive: false
   });
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  const [useImageUrl, setUseImageUrl] = useState(true); // Default to URL for Vercel compatibility
+  const [useImageUrl, setUseImageUrl] = useState(false); // Default to upload for Cloudinary
 
   useEffect(() => {
     if (!isAdmin) {
@@ -107,9 +112,9 @@ function AdminDashboard() {
       return;
     }
 
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('File is too large. Maximum size is 5MB', 'error');
+    // Validate file size (10MB for Cloudinary)
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('File is too large. Maximum size is 10MB', 'error');
       return;
     }
 
@@ -120,13 +125,13 @@ function AdminDashboard() {
     };
     reader.readAsDataURL(file);
 
-    // Upload file
+    // Upload file to Cloudinary
     setUploading(true);
     const formDataUpload = new FormData();
     formDataUpload.append('image', file);
 
     try {
-      const response = await fetch(getApiUrl('/api/upload'), {
+      const response = await fetch(getApiUrl('/api/upload/image'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -136,7 +141,7 @@ function AdminDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, image: data.imageUrl }));
+        setFormData(prev => ({ ...prev, image: data.url }));
         showToast('Image uploaded successfully', 'success');
       } else {
         const error = await response.json();
@@ -150,6 +155,69 @@ function AdminDashboard() {
     } finally {
       setUploading(false);
     }
+  };
+
+  // Handle multiple media uploads (images and videos)
+  const handleMediaUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    // Validate files
+    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+
+    for (const file of files) {
+      if (![...allowedImageTypes, ...allowedVideoTypes].includes(file.type)) {
+        showToast(`Invalid file type: ${file.name}`, 'error');
+        return;
+      }
+      if (file.size > maxSize) {
+        showToast(`File too large: ${file.name} (max 50MB)`, 'error');
+        return;
+      }
+    }
+
+    setUploading(true);
+    const uploadFormData = new FormData();
+    files.forEach(file => uploadFormData.append('media', file));
+
+    try {
+      const response = await fetch(getApiUrl('/api/upload/media'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: uploadFormData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({
+          ...prev,
+          media: [...prev.media, ...data.media]
+        }));
+        showToast(`${data.media.length} file(s) uploaded successfully`, 'success');
+      } else {
+        const error = await response.json();
+        showToast(error.message || 'Failed to upload media', 'error');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      showToast('Failed to upload media', 'error');
+    } finally {
+      setUploading(false);
+      if (mediaInputRef.current) {
+        mediaInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeMedia = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index)
+    }));
   };
 
   const removeImage = () => {
@@ -210,6 +278,7 @@ function AdminDashboard() {
       author: article.author,
       category: article.category,
       image: article.image,
+      media: article.media || [],
       isLive: article.isLive || false
     });
     setImagePreview(article.image);
@@ -737,6 +806,88 @@ function AdminDashboard() {
                       </>
                     )}
                   </div>
+                </div>
+
+                {/* Media Gallery Upload (Images & Videos to Cloudinary) */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <Video className="w-4 h-4 inline mr-1" />
+                    Additional Media (Images & Videos)
+                  </label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Upload additional images and videos for your article. These will be stored in cloud storage.
+                  </p>
+                  
+                  <input
+                    type="file"
+                    ref={mediaInputRef}
+                    onChange={handleMediaUpload}
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
+                    multiple
+                    className="hidden"
+                  />
+                  
+                  <button
+                    type="button"
+                    onClick={() => mediaInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                        <span className="text-sm text-muted-foreground">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-6 h-6 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Click to upload media files</span>
+                        <span className="text-xs text-muted-foreground">Images (5MB) & Videos (50MB)</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Media Preview Grid */}
+                  {formData.media && formData.media.length > 0 && (
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {formData.media.map((item, index) => (
+                        <div key={index} className="relative group">
+                          {item.type === 'video' ? (
+                            <video
+                              src={item.url}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <img
+                              src={item.url}
+                              alt={`Media ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={() => removeMedia(index)}
+                              className="p-1.5 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4 text-white" />
+                            </button>
+                          </div>
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
+                            {item.type === 'video' ? '🎬' : '🖼️'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Article Expiration Notice */}
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                    ⏳ Articles are automatically deleted after 3 days to save storage. 
+                    Users can bookmark articles to protect them from deletion.
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">

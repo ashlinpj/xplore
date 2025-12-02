@@ -6,6 +6,8 @@ import authRoutes from '../routes/authRoutes.js';
 import articleRoutes from '../routes/articleRoutes.js';
 import notificationRoutes from '../routes/notificationRoutes.js';
 import livekitRoutes from '../routes/livekitRoutes.js';
+import uploadRoutes from '../routes/uploadRoutes.js';
+import cleanupRoutes from '../routes/cleanupRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -37,8 +39,8 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Health check
 app.get('/api', (req, res) => {
@@ -50,8 +52,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/livekit', livekitRoutes);
-
-// Note: File uploads won't work on Vercel serverless - use cloud storage like Cloudinary instead
+app.use('/api/upload', uploadRoutes);
+app.use('/api/cleanup', cleanupRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -5,7 +5,7 @@ import { LiveTicker } from '../components/LiveTicker';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/Avatar';
-import { ThumbsUp, ThumbsDown, Share2, Eye, MessageSquare, Calendar, ArrowLeft } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Share2, Eye, MessageSquare, Calendar, ArrowLeft, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { articlesAPI } from '../lib/api';
 import { useToast } from '../context/ToastContext';
@@ -38,6 +38,8 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -164,6 +166,105 @@ export default function ArticlePage() {
         <div className="relative aspect-video w-full overflow-hidden rounded-xl mb-10 border border-white/10 shadow-2xl">
           <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
         </div>
+
+        {/* Media Gallery */}
+        {article.media && article.media.length > 0 && (
+          <div className="mb-10">
+            <h3 className="text-lg font-heading font-semibold mb-4 text-muted-foreground">Media Gallery</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {article.media.map((item, index) => (
+                <div 
+                  key={index} 
+                  className="relative aspect-video rounded-lg overflow-hidden cursor-pointer group border border-white/10 hover:border-primary/50 transition-all"
+                  onClick={() => {
+                    setCurrentMediaIndex(index);
+                    setLightboxOpen(true);
+                  }}
+                >
+                  {item.type === 'video' ? (
+                    <>
+                      <video 
+                        src={item.url} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                        <Play className="w-10 h-10 text-white opacity-80" />
+                      </div>
+                    </>
+                  ) : (
+                    <img 
+                      src={item.url} 
+                      alt={`Media ${index + 1}`} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Media Lightbox */}
+        {lightboxOpen && article.media && article.media.length > 0 && (
+          <div 
+            className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              className="absolute top-4 right-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+              onClick={() => setLightboxOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {article.media.length > 1 && (
+              <>
+                <button
+                  className="absolute left-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentMediaIndex((prev) => (prev - 1 + article.media.length) % article.media.length);
+                  }}
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+                <button
+                  className="absolute right-4 p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentMediaIndex((prev) => (prev + 1) % article.media.length);
+                  }}
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+              </>
+            )}
+            
+            <div 
+              className="max-w-4xl max-h-[80vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {article.media[currentMediaIndex].type === 'video' ? (
+                <video 
+                  src={article.media[currentMediaIndex].url}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-[80vh] rounded-lg"
+                />
+              ) : (
+                <img 
+                  src={article.media[currentMediaIndex].url}
+                  alt={`Media ${currentMediaIndex + 1}`}
+                  className="max-w-full max-h-[80vh] rounded-lg object-contain"
+                />
+              )}
+            </div>
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+              {currentMediaIndex + 1} / {article.media.length}
+            </div>
+          </div>
+        )}
 
         <div className="prose prose-invert prose-lg max-w-none font-serif">
           {article.content?.split('\n\n').map((paragraph, index) => (

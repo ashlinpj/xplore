@@ -1,6 +1,7 @@
 import Article from '../models/Article.js';
 import User from '../models/User.js';
 import { sendNotificationToAll } from '../routes/notificationRoutes.js';
+import { updateArticleProtection } from '../services/articleCleanup.js';
 
 // @desc    Get all articles
 // @route   GET /api/articles
@@ -321,6 +322,9 @@ export const bookmarkArticle = async (req, res) => {
     
     await user.save();
     await article.save();
+    
+    // Update article protection status (protects from auto-deletion if bookmarked)
+    await updateArticleProtection(articleId);
     
     res.json({ 
       isBookmarked: !isBookmarked,
