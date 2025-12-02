@@ -20,7 +20,6 @@ export default function Home() {
     const fetchArticles = async () => {
       try {
         const { data } = await articlesAPI.getAll();
-        // Use real data from database (empty array if no articles)
         setArticles(data.articles || []);
       } catch (error) {
         console.error('Error fetching articles:', error);
@@ -33,11 +32,9 @@ export default function Home() {
     fetchArticles();
   }, []);
 
-  // Filter articles based on search and category
   useEffect(() => {
     let result = [...articles];
     
-    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(article => 
@@ -49,7 +46,6 @@ export default function Home() {
       );
     }
     
-    // Filter by category
     if (categoryFilter) {
       result = result.filter(article => 
         article.category?.toLowerCase() === categoryFilter.toLowerCase()
@@ -80,7 +76,6 @@ export default function Home() {
       <LiveTicker />
       
       <main className="container mx-auto px-4 py-8 space-y-12">
-        {/* Search/Filter Results Header */}
         {(searchQuery || categoryFilter) && (
           <div className="flex items-center justify-between bg-muted/50 rounded-lg p-4">
             <div className="flex items-center gap-2">
@@ -104,7 +99,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* No Results */}
         {filteredArticles.length === 0 && !loading && (
           <div className="text-center py-20">
             <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -129,7 +123,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Hero Section */}
         {featuredArticle && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -140,7 +133,6 @@ export default function Home() {
           </motion.section>
         )}
 
-        {/* Latest News Grid */}
         <section>
           <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
             <h2 className="text-3xl font-heading font-bold flex items-center gap-2">
@@ -166,7 +158,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trending / Sidebar Style Section */}
         <section className="grid lg:grid-cols-4 gap-8 border-t border-white/10 pt-12">
            <div className="lg:col-span-3">
              <h3 className="text-2xl font-heading font-bold mb-6">Deep Dives</h3>
