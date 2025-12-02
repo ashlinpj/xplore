@@ -9,6 +9,7 @@ import { ThumbsUp, ThumbsDown, Share2, Eye, Calendar, ArrowLeft, Play, X, Chevro
 import { format } from 'date-fns';
 import { articlesAPI } from '../lib/api';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 const MOCK_ARTICLE = {
   _id: "1",
@@ -33,22 +34,30 @@ export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAuthenticated, token } = useAuth();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const { data } = await articlesAPI.getOne(id);
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await fetch(`${API_URL}/articles/${id}`, { headers });
+        const data = await response.json();
         setArticle(data);
         setLikes(data.likes);
         setDislikes(data.dislikes);
+        setIsLiked(data.isLiked || false);
+        setIsDisliked(data.isDisliked || false);
       } catch (error) {
-        console.log('Using mock article');
         setArticle(MOCK_ARTICLE);
         setLikes(MOCK_ARTICLE.likes);
         setDislikes(MOCK_ARTICLE.dislikes);
@@ -58,25 +67,77 @@ export default function ArticlePage() {
     };
 
     fetchArticle();
-  }, [id]);
+  }, [id, token]);
 
   const handleLike = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login required",
+        description: "Please login to like articles.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const wasLiked = isLiked;
+    const wasDisliked = isDisliked;
+    setIsLiked(!wasLiked);
+    setIsDisliked(false);
+    setLikes(prev => wasLiked ? prev - 1 : prev + 1);
+    if (wasDisliked) setDislikes(prev => prev - 1);
+
     try {
-      const { data } = await articlesAPI.like(id);
-      setLikes(data.likes);
-      setDislikes(data.dislikes);
+      const response = await fetch(`${API_URL}/articles/${id}/like`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLikes(data.likes);
+        setDislikes(data.dislikes);
+        setIsLiked(data.isLiked);
+        setIsDisliked(data.isDisliked);
+      }
     } catch (error) {
-      setLikes(prev => prev + 1);
+      setIsLiked(wasLiked);
+      setIsDisliked(wasDisliked);
     }
   };
 
   const handleDislike = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login required",
+        description: "Please login to dislike articles.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const wasLiked = isLiked;
+    const wasDisliked = isDisliked;
+    setIsDisliked(!wasDisliked);
+    setIsLiked(false);
+    setDislikes(prev => wasDisliked ? prev - 1 : prev + 1);
+    if (wasLiked) setLikes(prev => prev - 1);
+
     try {
-      const { data } = await articlesAPI.dislike(id);
-      setLikes(data.likes);
-      setDislikes(data.dislikes);
+      const response = await fetch(`${API_URL}/articles/${id}/dislike`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLikes(data.likes);
+        setDislikes(data.dislikes);
+        setIsLiked(data.isLiked);
+        setIsDisliked(data.isDisliked);
+      }
     } catch (error) {
-      setDislikes(prev => prev + 1);
+      setIsLiked(wasLiked);
+      setIsDisliked(wasDisliked);
     }
   };
 
@@ -282,17 +343,17 @@ export default function ArticlePage() {
             <div className="flex gap-4">
               <Button 
                 variant="outline" 
-                className="gap-2 border-white/10 hover:bg-green-500/10 hover:text-green-500 hover:border-green-500/50"
+                className={`gap-2 border-white/10 ${isLiked ? 'bg-green-500/20 text-green-400 border-green-500/50' : 'hover:bg-green-500/10 hover:text-green-500 hover:border-green-500/50'}`}
                 onClick={handleLike}
               >
-                <ThumbsUp className="w-4 h-4" /> Like ({likes})
+                <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} /> Like ({likes})
               </Button>
               <Button 
                 variant="outline" 
-                className="gap-2 border-white/10 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50"
+                className={`gap-2 border-white/10 ${isDisliked ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50'}`}
                 onClick={handleDislike}
               >
-                <ThumbsDown className="w-4 h-4" /> Dislike ({dislikes})
+                <ThumbsDown className={`w-4 h-4 ${isDisliked ? 'fill-current' : ''}`} /> Dislike ({dislikes})
               </Button>
             </div>
             
