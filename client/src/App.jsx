@@ -4,12 +4,12 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { NotificationProvider, useNotifications } from './context/NotificationContext';
 import { Toaster } from './components/ui/Toaster';
-import { NotificationPopup } from './components/NotificationPopup';
 import Home from './pages/Home';
 import ArticlePage from './pages/Article';
 import AdminDashboard from './pages/AdminDashboard';
 import Bookmarks from './pages/Bookmarks';
 import NotFound from './pages/NotFound';
+import VoiceAssistant from './components/VoiceAssistant';
 
 // Component to sync notifications when user is already logged in
 function NotificationSync() {
@@ -32,8 +32,8 @@ function App() {
         <AuthProvider>
           <NotificationProvider>
             <NotificationSync />
-            <NotificationPopup />
             <Toaster />
+            <VoiceAssistant />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/article/:id" element={<ArticlePage />} />

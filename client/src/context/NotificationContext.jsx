@@ -33,117 +33,7 @@ export function NotificationProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [permission, setPermission] = useState('default');
   const [userPreference, setUserPreference] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [popupNotification, setPopupNotification] = useState(null);
   const subscriptionRef = useRef(null);
-  const popupTimeoutRef = useRef(null);
-
-  // Load notifications from localStorage on mount
-  useEffect(() => {
-    const savedNotifications = localStorage.getItem('xplore_notifications');
-    if (savedNotifications) {
-      try {
-        const parsed = JSON.parse(savedNotifications);
-        setNotifications(parsed);
-        setUnreadCount(parsed.filter(n => !n.read).length);
-      } catch (e) {
-        console.log('[Notifications] Failed to parse saved notifications');
-      }
-    }
-  }, []);
-
-  // Save notifications to localStorage when they change
-  useEffect(() => {
-    if (notifications.length > 0) {
-      localStorage.setItem('xplore_notifications', JSON.stringify(notifications.slice(0, 20))); // Keep last 20
-    }
-  }, [notifications]);
-
-  // Listen for messages from service worker
-  useEffect(() => {
-    if (!isSupported) return;
-
-    const handleMessage = (event) => {
-      if (event.data && event.data.type === 'PUSH_RECEIVED') {
-        console.log('[Notifications] Received from SW:', event.data.payload);
-        addNotification(event.data.payload);
-        showPopup(event.data.payload);
-      }
-    };
-
-    navigator.serviceWorker.addEventListener('message', handleMessage);
-    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
-  }, [isSupported]);
-
-  // Show popup notification
-  const showPopup = useCallback((notification) => {
-    // Clear any existing timeout
-    if (popupTimeoutRef.current) {
-      clearTimeout(popupTimeoutRef.current);
-    }
-
-    const popup = {
-      id: Date.now(),
-      title: notification.title || 'New Notification',
-      body: notification.body || '',
-      url: notification.data?.url || '/',
-      image: notification.image
-    };
-
-    setPopupNotification(popup);
-
-    // Auto-dismiss after 6 seconds
-    popupTimeoutRef.current = setTimeout(() => {
-      setPopupNotification(null);
-    }, 6000);
-  }, []);
-
-  // Dismiss popup
-  const dismissPopup = useCallback(() => {
-    if (popupTimeoutRef.current) {
-      clearTimeout(popupTimeoutRef.current);
-    }
-    setPopupNotification(null);
-  }, []);
-
-  // Add a new notification
-  const addNotification = useCallback((notification) => {
-    const newNotif = {
-      id: Date.now(),
-      title: notification.title || 'New Notification',
-      body: notification.body || '',
-      url: notification.data?.url || '/',
-      articleId: notification.data?.articleId,
-      image: notification.image,
-      timestamp: new Date().toISOString(),
-      read: false
-    };
-
-    setNotifications(prev => [newNotif, ...prev].slice(0, 20));
-    setUnreadCount(prev => prev + 1);
-  }, []);
-
-  // Mark notification as read
-  const markAsRead = useCallback((notificationId) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  }, []);
-
-  // Mark all as read
-  const markAllAsRead = useCallback(() => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
-  }, []);
-
-  // Clear all notifications
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-    setUnreadCount(0);
-    localStorage.removeItem('xplore_notifications');
-  }, []);
 
   // Check support and existing subscription on mount
   useEffect(() => {
@@ -338,19 +228,10 @@ export function NotificationProvider({ children }) {
     isLoading,
     permission,
     userPreference,
-    notifications,
-    unreadCount,
-    popupNotification,
     subscribe,
     unsubscribe,
     toggleSubscription,
-    syncWithUserPreference,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-    clearNotifications,
-    showPopup,
-    dismissPopup
+    syncWithUserPreference
   };
 
   return (
