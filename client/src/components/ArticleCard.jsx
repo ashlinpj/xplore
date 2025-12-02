@@ -289,8 +289,8 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
           {article.excerpt}
         </p>
         
-        <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5 mt-auto">
+          <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
               {article.viewers?.toLocaleString() || 0}
@@ -301,38 +301,38 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             </span>
           </div>
           
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 sm:gap-1">
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 hover:bg-transparent ${isLiked ? 'text-green-400' : ''}`} 
+              className={`h-9 w-9 sm:h-8 sm:w-8 hover:bg-muted/50 active:bg-muted touch-manipulation ${isLiked ? 'text-green-400' : ''}`} 
               onClick={handleLike}
             >
-              <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-current' : ''}`} />
+              <ThumbsUp className={`w-4 h-4 sm:w-3 sm:h-3 ${isLiked ? 'fill-current' : ''}`} />
             </Button>
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 hover:bg-transparent ${isDisliked ? 'text-red-400' : ''}`} 
+              className={`h-9 w-9 sm:h-8 sm:w-8 hover:bg-muted/50 active:bg-muted touch-manipulation ${isDisliked ? 'text-red-400' : ''}`} 
               onClick={handleDislike}
             >
-              <ThumbsDown className={`w-3 h-3 ${isDisliked ? 'fill-current' : ''}`} />
+              <ThumbsDown className={`w-4 h-4 sm:w-3 sm:h-3 ${isDisliked ? 'fill-current' : ''}`} />
             </Button>
             <Button 
               size="icon" 
               variant="ghost" 
-              className={`h-8 w-8 hover:bg-transparent ${isBookmarked ? 'text-primary' : ''}`} 
+              className={`h-9 w-9 sm:h-8 sm:w-8 hover:bg-muted/50 active:bg-muted touch-manipulation ${isBookmarked ? 'text-primary' : ''}`} 
               onClick={handleBookmark}
             >
-              <Bookmark className={`w-3 h-3 ${isBookmarked ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 sm:w-3 sm:h-3 ${isBookmarked ? 'fill-current' : ''}`} />
             </Button>
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-8 w-8 hover:bg-transparent" 
+              className="h-9 w-9 sm:h-8 sm:w-8 hover:bg-muted/50 active:bg-muted touch-manipulation" 
               onClick={handleShare}
             >
-              <Share2 className="w-3 h-3" />
+              <Share2 className="w-4 h-4 sm:w-3 sm:h-3" />
             </Button>
           </div>
         </div>

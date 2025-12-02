@@ -428,13 +428,13 @@ function AdminDashboard() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="border-b border-border/50 bg-card/30 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-heading font-bold text-foreground">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-heading font-bold text-foreground truncate">
                 Admin Dashboard
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm">
                 Welcome back, {user?.username}
               </p>
             </div>
@@ -442,10 +442,11 @@ function AdminDashboard() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={openNewArticleModal}
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1 sm:gap-2 bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors text-sm sm:text-base shrink-0"
             >
-              <Plus className="w-5 h-5" />
-              New Article
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">New Article</span>
+              <span className="sm:hidden">New</span>
             </motion.button>
           </div>
         </div>
@@ -658,24 +659,26 @@ function AdminDashboard() {
           transition={{ delay: 0.6 }}
           className="bg-card border border-border rounded-xl overflow-hidden mt-8"
         >
-          <div className="p-6 border-b border-border flex items-center justify-between">
-            <h2 className="text-lg font-heading font-semibold text-foreground flex items-center gap-2">
-              <Bug className="w-5 h-5 text-red-500" />
-              Bug Reports ({bugs.length})
-            </h2>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                {bugs.filter(b => b.status === 'Open').length} Open
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-4 h-4 text-yellow-500" />
-                {bugs.filter(b => b.status === 'In Progress').length} In Progress
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                {bugs.filter(b => b.status === 'Resolved').length} Resolved
-              </span>
+          <div className="p-4 sm:p-6 border-b border-border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base sm:text-lg font-heading font-semibold text-foreground flex items-center gap-2">
+                <Bug className="w-5 h-5 text-red-500" />
+                Bug Reports ({bugs.length})
+              </h2>
+              <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
+                  {bugs.filter(b => b.status === 'Open').length} Open
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />
+                  {bugs.filter(b => b.status === 'In Progress').length} In Progress
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+                  {bugs.filter(b => b.status === 'Resolved').length} Resolved
+                </span>
+              </div>
             </div>
           </div>
 
@@ -691,11 +694,11 @@ function AdminDashboard() {
           ) : (
             <div className="divide-y divide-border">
               {bugs.map((bug) => (
-                <div key={bug._id} className="p-4 hover:bg-background/30 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
+                <div key={bug._id} className="p-3 sm:p-4 hover:bg-background/30 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <h3 className="font-medium text-foreground truncate">{bug.title}</h3>
+                        <h3 className="font-medium text-foreground text-sm sm:text-base">{bug.title}</h3>
                         <span className={`px-2 py-0.5 text-xs rounded-full ${getBugCategoryColor(bug.category)}`}>
                           {bug.category}
                         </span>
@@ -706,13 +709,13 @@ function AdminDashboard() {
                           {bug.priority}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{bug.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2">{bug.description}</p>
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
                           {bug.reporterName || 'Unknown User'}
                         </span>
-                        <span>{bug.reporterEmail}</span>
+                        <span className="hidden sm:inline">{bug.reporterEmail}</span>
                         <span>
                           {new Date(bug.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
@@ -722,7 +725,7 @@ function AdminDashboard() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <select
                         value={bug.status}
                         onChange={(e) => updateBugStatus(bug._id, e.target.value)}
@@ -735,7 +738,7 @@ function AdminDashboard() {
                       </select>
                       <button
                         onClick={() => deleteBug(bug._id)}
-                        className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                        className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors touch-manipulation"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

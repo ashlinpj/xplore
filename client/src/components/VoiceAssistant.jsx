@@ -221,11 +221,11 @@ export function VoiceAssistant() {
     return (
       <button
         onClick={handleOpen}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary hover:bg-primary/90 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-primary hover:bg-primary/90 text-black rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
         title="Talk to XPLORE AI"
       >
-        <Bot className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        <span className="absolute -top-10 right-0 bg-card text-foreground text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <Bot className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+        <span className="absolute -top-10 right-0 bg-card text-foreground text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden sm:block">
           Talk to AI
         </span>
       </button>
@@ -233,13 +233,13 @@ export function VoiceAssistant() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 bg-card border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+    <div className="fixed bottom-0 sm:bottom-6 right-0 sm:right-6 z-50 w-full sm:w-80 bg-card border-t sm:border border-white/10 sm:rounded-xl shadow-2xl overflow-hidden max-h-[80vh] sm:max-h-none">
       {/* Header */}
-      <div className="bg-primary/10 border-b border-white/10 p-4">
+      <div className="bg-primary/10 border-b border-white/10 p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-              <Bot className="w-5 h-5 text-primary" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/20 rounded-full flex items-center justify-center">
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
             <div>
               <h3 className="font-semibold text-sm">XPLORE AI</h3>
@@ -250,9 +250,9 @@ export function VoiceAssistant() {
             variant="ghost" 
             size="icon" 
             onClick={() => setIsOpen(false)}
-            className="h-8 w-8"
+            className="h-9 w-9 sm:h-8 sm:w-8 touch-manipulation"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5 sm:w-4 sm:h-4" />
           </Button>
         </div>
       </div>
