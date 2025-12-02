@@ -44,8 +44,13 @@ router.post('/token', async (req, res) => {
     const roomService = new RoomServiceClient(httpUrl, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
     
     // Create the room first (or get existing)
+    // Set longer empty timeout to allow time for connections on mobile
     try {
-      await roomService.createRoom({ name: roomName, emptyTimeout: 300 });
+      await roomService.createRoom({ 
+        name: roomName, 
+        emptyTimeout: 600, // 10 minutes
+        maxParticipants: 2, // Just user and agent
+      });
       console.log(`Room ${roomName} created`);
     } catch (err) {
       // Room might already exist, that's okay

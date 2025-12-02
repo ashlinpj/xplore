@@ -128,11 +128,40 @@ export function VoiceAssistant() {
   const [connectionDetails, setConnectionDetails] = useState(null);
   const [error, setError] = useState(null);
 
+  // Check for microphone permission before connecting
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop all tracks immediately after getting permission
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (err) {
+      console.error('Microphone permission error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setError('Microphone access denied. Please allow microphone permission in your browser settings.');
+      } else if (err.name === 'NotFoundError') {
+        setError('No microphone found. Please connect a microphone and try again.');
+      } else if (err.name === 'NotSupportedError') {
+        setError('Your browser does not support microphone access. Please try a different browser.');
+      } else {
+        setError(`Microphone error: ${err.message}`);
+      }
+      return false;
+    }
+  };
+
   const connectToRoom = useCallback(async () => {
     setIsConnecting(true);
     setError(null);
     
     try {
+      // First, request microphone permission (especially important on mobile)
+      const hasMicPermission = await requestMicrophonePermission();
+      if (!hasMicPermission) {
+        setIsConnecting(false);
+        return;
+      }
+
       // Generate a unique room name
       const roomName = `xplore-ai-${Date.now()}`;
       const participantName = `user-${Math.random().toString(36).substring(7)}`;
