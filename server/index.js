@@ -13,6 +13,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import livekitRoutes from './routes/livekitRoutes.js';
 import cleanupRoutes from './routes/cleanupRoutes.js';
+import bugRoutes from './routes/bugRoutes.js';
 import { cleanupExpiredArticles } from './services/articleCleanup.js';
 
 // ES Module fix for __dirname
@@ -59,6 +60,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/livekit', livekitRoutes);
 app.use('/api/cleanup', cleanupRoutes);
+app.use('/api/bugs', bugRoutes);
 
 // Run cleanup on server start and then every 6 hours
 const runCleanup = async () => {

@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Bookmarks from './pages/Bookmarks';
 import NotFound from './pages/NotFound';
 import VoiceAssistant from './components/VoiceAssistant';
+import BugReportButton from './components/BugReportButton';
 
 // Component to sync notifications when user is already logged in
 function NotificationSync() {
@@ -34,6 +35,7 @@ function App() {
             <NotificationSync />
             <Toaster />
             <VoiceAssistant />
+            <BugReportButton />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/article/:id" element={<ArticlePage />} />

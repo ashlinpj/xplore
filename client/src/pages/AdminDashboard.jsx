@@ -21,7 +21,12 @@ import {
   Radio,
   Upload,
   ImagePlus,
-  Video
+  Video,
+  Bug,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  MessageSquare
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
@@ -54,6 +59,8 @@ function AdminDashboard() {
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [useImageUrl, setUseImageUrl] = useState(false); // Default to upload for Cloudinary
+  const [bugs, setBugs] = useState([]);
+  const [bugsLoading, setBugsLoading] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -61,6 +68,7 @@ function AdminDashboard() {
       return;
     }
     fetchData();
+    fetchBugs();
   }, [isAdmin, navigate]);
 
   const fetchData = async () => {
@@ -88,6 +96,83 @@ function AdminDashboard() {
       showToast('Failed to load dashboard data', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBugs = async () => {
+    setBugsLoading(true);
+    try {
+      const response = await fetch(getApiUrl('/api/bugs'), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBugs(data);
+      }
+    } catch (error) {
+      console.error('Error fetching bugs:', error);
+    } finally {
+      setBugsLoading(false);
+    }
+  };
+
+  const updateBugStatus = async (bugId, status) => {
+    try {
+      const response = await fetch(getApiUrl(`/api/bugs/${bugId}/status`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      if (response.ok) {
+        showToast('Bug status updated', 'success');
+        fetchBugs();
+      } else {
+        showToast('Failed to update bug status', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating bug:', error);
+      showToast('Failed to update bug status', 'error');
+    }
+  };
+
+  const deleteBug = async (bugId) => {
+    if (!window.confirm('Are you sure you want to delete this bug report?')) return;
+    try {
+      const response = await fetch(getApiUrl(`/api/bugs/${bugId}`), {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        showToast('Bug report deleted', 'success');
+        fetchBugs();
+      } else {
+        showToast('Failed to delete bug report', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting bug:', error);
+      showToast('Failed to delete bug report', 'error');
+    }
+  };
+
+  const getBugStatusColor = (status) => {
+    switch (status) {
+      case 'open': return 'text-red-500 bg-red-500/10';
+      case 'in-progress': return 'text-yellow-500 bg-yellow-500/10';
+      case 'resolved': return 'text-green-500 bg-green-500/10';
+      case 'closed': return 'text-muted-foreground bg-muted/10';
+      default: return 'text-muted-foreground bg-muted/10';
+    }
+  };
+
+  const getBugTypeColor = (type) => {
+    switch (type) {
+      case 'bug': return 'text-red-500 bg-red-500/10';
+      case 'feature': return 'text-blue-500 bg-blue-500/10';
+      case 'improvement': return 'text-purple-500 bg-purple-500/10';
+      default: return 'text-muted-foreground bg-muted/10';
     }
   };
 
@@ -559,6 +644,98 @@ function AdminDashboard() {
             <div className="p-12 text-center">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">No articles yet. Create your first one!</p>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Bug Reports Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-card border border-border rounded-xl overflow-hidden mt-8"
+        >
+          <div className="p-6 border-b border-border flex items-center justify-between">
+            <h2 className="text-lg font-heading font-semibold text-foreground flex items-center gap-2">
+              <Bug className="w-5 h-5 text-red-500" />
+              Bug Reports ({bugs.length})
+            </h2>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <AlertCircle className="w-4 h-4 text-red-500" />
+                {bugs.filter(b => b.status === 'open').length} Open
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4 text-yellow-500" />
+                {bugs.filter(b => b.status === 'in-progress').length} In Progress
+              </span>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                {bugs.filter(b => b.status === 'resolved').length} Resolved
+              </span>
+            </div>
+          </div>
+
+          {bugsLoading ? (
+            <div className="p-12 text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+            </div>
+          ) : bugs.length === 0 ? (
+            <div className="p-12 text-center">
+              <Bug className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No bug reports yet. Great job!</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {bugs.map((bug) => (
+                <div key={bug._id} className="p-4 hover:bg-background/30 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-medium text-foreground truncate">{bug.title}</h3>
+                        <span className={`px-2 py-0.5 text-xs rounded-full capitalize ${getBugTypeColor(bug.type)}`}>
+                          {bug.type}
+                        </span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full capitalize ${getBugStatusColor(bug.status)}`}>
+                          {bug.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{bug.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {bug.reporter?.username || 'Unknown User'}
+                        </span>
+                        <span>
+                          {new Date(bug.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <select
+                        value={bug.status}
+                        onChange={(e) => updateBugStatus(bug._id, e.target.value)}
+                        className="text-xs bg-background border border-border rounded-lg px-2 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                      <button
+                        onClick={() => deleteBug(bug._id)}
+                        className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </motion.div>

@@ -8,6 +8,7 @@ import notificationRoutes from '../routes/notificationRoutes.js';
 import livekitRoutes from '../routes/livekitRoutes.js';
 import uploadRoutes from '../routes/uploadRoutes.js';
 import cleanupRoutes from '../routes/cleanupRoutes.js';
+import bugRoutes from '../routes/bugRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -54,6 +55,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/livekit', livekitRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/cleanup', cleanupRoutes);
+app.use('/api/bugs', bugRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
