@@ -67,9 +67,11 @@ function AdminDashboard() {
       navigate('/');
       return;
     }
-    fetchData();
-    fetchBugs();
-  }, [isAdmin, navigate]);
+    if (token) {
+      fetchData();
+      fetchBugs();
+    }
+  }, [isAdmin, navigate, token]);
 
   const fetchData = async () => {
     try {
@@ -107,7 +109,7 @@ function AdminDashboard() {
       });
       if (response.ok) {
         const data = await response.json();
-        setBugs(data);
+        setBugs(data.bugs || []);
       }
     } catch (error) {
       console.error('Error fetching bugs:', error);
@@ -118,8 +120,8 @@ function AdminDashboard() {
 
   const updateBugStatus = async (bugId, status) => {
     try {
-      const response = await fetch(getApiUrl(`/api/bugs/${bugId}/status`), {
-        method: 'PATCH',
+      const response = await fetch(getApiUrl(`/api/bugs/${bugId}`), {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -159,19 +161,20 @@ function AdminDashboard() {
 
   const getBugStatusColor = (status) => {
     switch (status) {
-      case 'open': return 'text-red-500 bg-red-500/10';
-      case 'in-progress': return 'text-yellow-500 bg-yellow-500/10';
-      case 'resolved': return 'text-green-500 bg-green-500/10';
-      case 'closed': return 'text-muted-foreground bg-muted/10';
+      case 'Open': return 'text-red-500 bg-red-500/10';
+      case 'In Progress': return 'text-yellow-500 bg-yellow-500/10';
+      case 'Resolved': return 'text-green-500 bg-green-500/10';
+      case 'Closed': return 'text-muted-foreground bg-muted/10';
       default: return 'text-muted-foreground bg-muted/10';
     }
   };
 
-  const getBugTypeColor = (type) => {
-    switch (type) {
-      case 'bug': return 'text-red-500 bg-red-500/10';
-      case 'feature': return 'text-blue-500 bg-blue-500/10';
-      case 'improvement': return 'text-purple-500 bg-purple-500/10';
+  const getBugCategoryColor = (category) => {
+    switch (category) {
+      case 'UI/UX': return 'text-blue-500 bg-blue-500/10';
+      case 'Performance': return 'text-orange-500 bg-orange-500/10';
+      case 'Functionality': return 'text-purple-500 bg-purple-500/10';
+      case 'Security': return 'text-red-500 bg-red-500/10';
       default: return 'text-muted-foreground bg-muted/10';
     }
   };
@@ -663,15 +666,15 @@ function AdminDashboard() {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <AlertCircle className="w-4 h-4 text-red-500" />
-                {bugs.filter(b => b.status === 'open').length} Open
+                {bugs.filter(b => b.status === 'Open').length} Open
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-4 h-4 text-yellow-500" />
-                {bugs.filter(b => b.status === 'in-progress').length} In Progress
+                {bugs.filter(b => b.status === 'In Progress').length} In Progress
               </span>
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4 text-green-500" />
-                {bugs.filter(b => b.status === 'resolved').length} Resolved
+                {bugs.filter(b => b.status === 'Resolved').length} Resolved
               </span>
             </div>
           </div>
@@ -691,21 +694,25 @@ function AdminDashboard() {
                 <div key={bug._id} className="p-4 hover:bg-background/30 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <h3 className="font-medium text-foreground truncate">{bug.title}</h3>
-                        <span className={`px-2 py-0.5 text-xs rounded-full capitalize ${getBugTypeColor(bug.type)}`}>
-                          {bug.type}
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${getBugCategoryColor(bug.category)}`}>
+                          {bug.category}
                         </span>
-                        <span className={`px-2 py-0.5 text-xs rounded-full capitalize ${getBugStatusColor(bug.status)}`}>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${getBugStatusColor(bug.status)}`}>
                           {bug.status}
+                        </span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${bug.priority === 'Critical' ? 'text-red-500 bg-red-500/10' : bug.priority === 'High' ? 'text-orange-500 bg-orange-500/10' : 'text-muted-foreground bg-muted/10'}`}>
+                          {bug.priority}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{bug.description}</p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          {bug.reporter?.username || 'Unknown User'}
+                          {bug.reporterName || 'Unknown User'}
                         </span>
+                        <span>{bug.reporterEmail}</span>
                         <span>
                           {new Date(bug.createdAt).toLocaleDateString('en-US', {
                             month: 'short',
@@ -721,10 +728,10 @@ function AdminDashboard() {
                         onChange={(e) => updateBugStatus(bug._id, e.target.value)}
                         className="text-xs bg-background border border-border rounded-lg px-2 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       >
-                        <option value="open">Open</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
                       </select>
                       <button
                         onClick={() => deleteBug(bug._id)}
