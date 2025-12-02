@@ -175,15 +175,17 @@ export default function Home() {
                   <Link 
                     key={`wide-${article._id}`} 
                     to={`/article/${article._id}`}
-                    className="flex gap-4 items-start group cursor-pointer hover:bg-white/5 p-4 rounded-lg transition-colors"
+                    className="block"
                   >
-                     <div className="w-32 h-20 shrink-0 overflow-hidden rounded bg-muted">
-                       <img src={article.image} className="w-full h-full object-cover" alt="" />
-                     </div>
-                     <div>
-                       <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{article.title}</h4>
-                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{article.excerpt}</p>
-                     </div>
+                    <div className="flex gap-4 items-start group cursor-pointer hover:bg-white/5 p-4 rounded-lg transition-colors">
+                       <div className="w-32 h-20 shrink-0 overflow-hidden rounded bg-muted">
+                         <img src={article.image} className="w-full h-full object-cover" alt="" />
+                       </div>
+                       <div>
+                         <h4 className="text-lg font-bold group-hover:text-primary transition-colors">{article.title}</h4>
+                         <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{article.excerpt}</p>
+                       </div>
+                    </div>
                   </Link>
                 ))}
              </div>
