@@ -73,24 +73,21 @@ async def my_agent(ctx: agents.JobContext):
     )
     
     # Start the session with our custom agent
-    # Use RoomOptions (not deprecated RoomInputOptions)
     await session.start(
         room=ctx.room,
         agent=TechNewsAssistant(),
-        room_options=agents.RoomOptions(
-            audio_output=True,
-            audio_input=True,
-        ),
     )
     
-    # Generate initial greeting
+    logger.info("Agent session started, generating greeting...")
+    
+    # Generate initial greeting immediately when user connects
     await session.generate_reply(
         instructions="Greet the user warmly. Introduce yourself as XPLORE AI, their technology news assistant. "
         "Tell them you can help with the latest tech news about AI, space, electric vehicles, and more. "
         "Ask what they'd like to know about. Keep it brief, just 1-2 sentences."
     )
     
-    logger.info("Agent session started")
+    logger.info("Greeting sent")
 
 
 if __name__ == "__main__":
