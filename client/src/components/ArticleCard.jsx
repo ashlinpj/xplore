@@ -182,12 +182,12 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
   if (featured) {
     return (
       <Link to={`/article/${article._id}`} className="group relative grid md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-white/10 bg-card hover:border-primary/50 transition-all duration-300 h-[500px]">
-        <div className="relative h-full w-full overflow-hidden bg-black/20 flex items-center justify-center">
+        <div className="relative h-full w-full overflow-hidden bg-black/30 flex items-center justify-center">
           {article.image ? (
             <img 
               src={article.image} 
               alt={article.title} 
-              className="max-h-full max-w-full object-contain transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
           ) : (
@@ -252,12 +252,12 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
 
   return (
     <Link to={`/article/${article._id}`} className="group flex flex-col bg-card rounded-lg overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-300 h-full">
-      <div className="relative aspect-video overflow-hidden bg-black/20 flex items-center justify-center">
+      <div className="relative aspect-[4/3] overflow-hidden bg-black/30 flex items-center justify-center">
         {article.image ? (
           <img 
             src={article.image} 
             alt={article.title} 
-            className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         ) : (
