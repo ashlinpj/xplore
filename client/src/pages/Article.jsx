@@ -163,8 +163,8 @@ export default function ArticlePage() {
            </div>
         </header>
 
-        <div className="relative aspect-video w-full overflow-hidden rounded-xl mb-10 border border-white/10 shadow-2xl">
-          <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+        <div className="relative w-full overflow-hidden rounded-xl mb-10 border border-white/10 shadow-2xl bg-black/30 flex items-center justify-center p-4">
+          <img src={article.image} alt={article.title} className="max-w-full max-h-[500px] object-contain rounded-lg" />
         </div>
 
         {/* Media Gallery */}
