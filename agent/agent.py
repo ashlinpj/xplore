@@ -80,11 +80,22 @@ async def my_agent(ctx: agents.JobContext):
     
     logger.info("Agent session started, generating greeting...")
     
-    # Generate initial greeting immediately when user connects
+    # Get the user's name from the participant identity
+    user_name = "there"
+    for participant in ctx.room.remote_participants.values():
+        identity = participant.identity
+        if identity and not identity.startswith("agent"):
+            # Extract first name (capitalize first letter)
+            user_name = identity.split()[0].split('-')[0].split('_')[0].capitalize()
+            break
+    
+    logger.info(f"Greeting user: {user_name}")
+    
+    # Generate personalized greeting
     await session.generate_reply(
-        instructions="Greet the user warmly. Introduce yourself as XPLORE AI, their technology news assistant. "
-        "Tell them you can help with the latest tech news about AI, space, electric vehicles, and more. "
-        "Ask what they'd like to know about. Keep it brief, just 1-2 sentences."
+        instructions=f"Greet the user by saying 'Hey {user_name}! I'm here to give you the latest tech news.' "
+        "Then briefly mention you can help with AI, space, gadgets, and more. Ask what they'd like to know. "
+        "Keep it brief and friendly, just 1-2 sentences total."
     )
     
     logger.info("Greeting sent")

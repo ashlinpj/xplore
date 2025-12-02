@@ -161,9 +161,22 @@ export function VoiceAssistant() {
         return;
       }
 
-      // Generate a unique room name
+      // Generate a unique room name and get user name
       const roomName = `xplore-ai-${Date.now()}`;
-      const participantName = `user-${Math.random().toString(36).substring(7)}`;
+      
+      // Try to get user name from localStorage (set during login)
+      let userName = 'Guest';
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          userName = user.username || user.name || 'Guest';
+        }
+      } catch (e) {
+        console.log('Could not get user name');
+      }
+      
+      const participantName = userName;
       
       // Get token from server
       const response = await fetch(getApiUrl('/api/livekit/token'), {
