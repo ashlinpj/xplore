@@ -171,26 +171,26 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
 
   if (featured) {
     return (
-      <Link to={`/article/${article._id}`} className="group relative grid md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-white/10 bg-card hover:border-primary/50 transition-all duration-300 h-[500px]">
-        <div className="relative h-full w-full overflow-hidden bg-black/30 flex items-center justify-center">
+      <Link to={`/article/${article._id}`} className="group relative grid grid-cols-1 md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-white/10 bg-card hover:border-primary/50 transition-all duration-300 min-h-[300px] md:h-[500px]">
+        <div className="relative h-48 md:h-full w-full overflow-hidden bg-black/30 flex items-center justify-center">
           {article.image ? (
             <img 
               src={article.image} 
               alt={article.title} 
-              className="w-full h-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover md:object-contain md:p-4 transition-transform duration-700 group-hover:scale-105"
               onError={(e) => { e.target.style.display = 'none'; }}
             />
           ) : (
             <span className="text-muted-foreground text-sm">No Image</span>
           )}
         </div>
-        <div className="relative flex flex-col justify-center p-8 md:p-12 bg-card">
-          <div className="flex items-center gap-2 mb-4">
-            <Badge variant="outline" className="border-primary text-primary font-mono">
+        <div className="relative flex flex-col justify-center p-4 sm:p-6 md:p-12 bg-card">
+          <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
+            <Badge variant="outline" className="border-primary text-primary font-mono text-xs">
               {article.category}
             </Badge>
             {article.isLive && (
-              <Badge variant="destructive" className="animate-pulse">
+              <Badge variant="destructive" className="animate-pulse text-xs">
                 LIVE
               </Badge>
             )}
@@ -200,38 +200,44 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             </span>
           </div>
           
-          <h2 className="text-3xl md:text-5xl font-heading font-bold leading-tight mb-4 group-hover:text-primary transition-colors">
+          <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-heading font-bold leading-tight mb-2 md:mb-4 group-hover:text-primary transition-colors line-clamp-3">
             {article.title}
           </h2>
           
-          <p className="text-muted-foreground text-lg mb-8 line-clamp-3">
+          <p className="text-muted-foreground text-sm md:text-lg mb-4 md:mb-8 line-clamp-2 md:line-clamp-3">
             {article.excerpt}
           </p>
           
-          <div className="flex items-center justify-between mt-auto border-t border-white/5 pt-6">
+          <div className="flex flex-col gap-3 mt-auto border-t border-white/5 pt-4 md:pt-6">
             <div className="flex items-center gap-2 text-sm font-medium">
               <span className="text-primary">By {article.author}</span>
             </div>
             
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex justify-between gap-1">
               <button 
-                className={`p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center gap-1 ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
+                className={`flex-1 p-2 md:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center gap-1 ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
                 onClick={handleLike}
               >
-                <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} /> 
-                <span className="text-sm">{likes}</span>
+                <ThumbsUp className={`w-4 h-4 md:w-5 md:h-5 ${isLiked ? 'fill-current' : ''}`} />
+                <span className="text-xs md:text-sm">{likes}</span>
               </button>
               <button 
-                className={`p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
+                className={`flex-1 p-2 md:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isDisliked ? 'text-red-400' : 'text-muted-foreground'}`} 
+                onClick={handleDislike}
+              >
+                <ThumbsDown className={`w-4 h-4 md:w-5 md:h-5 ${isDisliked ? 'fill-current' : ''}`} />
+              </button>
+              <button 
+                className={`flex-1 p-2 md:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
                 onClick={handleBookmark}
               >
-                <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+                <Bookmark className={`w-4 h-4 md:w-5 md:h-5 ${isBookmarked ? 'fill-current' : ''}`} />
               </button>
               <button 
-                className="p-2 rounded-lg hover:bg-muted/50 active:bg-muted touch-manipulation text-muted-foreground" 
+                className="flex-1 p-2 md:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center text-muted-foreground" 
                 onClick={handleShare}
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
           </div>
@@ -242,44 +248,44 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
 
   return (
     <Link to={`/article/${article._id}`} className="group flex flex-col bg-card rounded-lg overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-300 h-full">
-      <div className="relative aspect-[4/3] overflow-hidden bg-black/30 flex items-center justify-center">
+      <div className="relative aspect-video sm:aspect-[4/3] overflow-hidden bg-black/30 flex items-center justify-center">
         {article.image ? (
           <img 
             src={article.image} 
             alt={article.title} 
-            className="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         ) : (
           <span className="text-muted-foreground text-sm">No Image</span>
         )}
         <div className="absolute top-2 left-2">
-          <Badge className="bg-black/50 backdrop-blur-sm border-white/10 text-white">
+          <Badge className="bg-black/50 backdrop-blur-sm border-white/10 text-white text-xs">
             {article.category}
           </Badge>
         </div>
         {isBookmarked && (
           <div className="absolute top-2 right-2">
-            <Bookmark className="w-5 h-5 text-primary fill-current" />
+            <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-primary fill-current" />
           </div>
         )}
       </div>
       
-      <div className="flex flex-col flex-1 p-5">
-        <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
-           <span className="font-mono text-primary">{article.author}</span>
-           <span>{formatDistanceToNow(new Date(article.createdAt))} ago</span>
+      <div className="flex flex-col flex-1 p-3 sm:p-4">
+        <div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
+           <span className="font-mono text-primary truncate">{article.author}</span>
+           <span className="shrink-0 ml-2">{formatDistanceToNow(new Date(article.createdAt))} ago</span>
         </div>
         
-        <h3 className="text-xl font-heading font-bold leading-snug mb-3 group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="text-base sm:text-lg md:text-xl font-heading font-bold leading-snug mb-2 group-hover:text-primary transition-colors line-clamp-2">
           {article.title}
         </h3>
         
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 flex-1">
           {article.excerpt}
         </p>
         
-        <div className="flex flex-col gap-3 pt-3 border-t border-white/5 mt-auto">
+        <div className="flex flex-col gap-2 pt-2 border-t border-white/5 mt-auto">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
@@ -291,30 +297,30 @@ export function ArticleCard({ article, featured = false, onRefresh }) {
             </span>
           </div>
           
-          <div className="flex justify-between gap-1">
+          <div className="grid grid-cols-4 gap-1">
             <button 
-              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
+              className={`p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isLiked ? 'text-green-400' : 'text-muted-foreground'}`} 
               onClick={handleLike}
             >
-              <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+              <ThumbsUp className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isDisliked ? 'text-red-400' : 'text-muted-foreground'}`} 
+              className={`p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isDisliked ? 'text-red-400' : 'text-muted-foreground'}`} 
               onClick={handleDislike}
             >
-              <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-current' : ''}`} />
+              <ThumbsDown className={`w-4 h-4 sm:w-5 sm:h-5 ${isDisliked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className={`flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
+              className={`p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center ${isBookmarked ? 'text-primary' : 'text-muted-foreground'}`} 
               onClick={handleBookmark}
             >
-              <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
             <button 
-              className="flex-1 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center text-muted-foreground" 
+              className="p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 active:bg-muted touch-manipulation flex items-center justify-center text-muted-foreground" 
               onClick={handleShare}
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
