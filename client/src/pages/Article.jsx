@@ -46,10 +46,22 @@ export default function ArticlePage() {
 
   const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
+  const getVisitorId = () => {
+    let visitorId = localStorage.getItem('visitorId');
+    if (!visitorId) {
+      visitorId = 'v_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+      localStorage.setItem('visitorId', visitorId);
+    }
+    return visitorId;
+  };
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const headers = { 'x-visitor-id': getVisitorId() };
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
         const response = await fetch(`${API_URL}/articles/${id}`, { headers });
         const data = await response.json();
         setArticle(data);

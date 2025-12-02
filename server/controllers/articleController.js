@@ -79,9 +79,36 @@ export const getArticle = async (req, res) => {
       return res.status(404).json({ message: 'Article not found' });
     }
     
-    // Increment viewers
-    article.viewers += 1;
-    await article.save();
+    // Track unique views
+    let viewIncremented = false;
+    
+    if (req.user) {
+      // For logged-in users, check if they've viewed before
+      if (!article.viewedBy.includes(req.user._id)) {
+        article.viewedBy.push(req.user._id);
+        article.viewers += 1;
+        viewIncremented = true;
+      }
+    } else {
+      // For anonymous users, use visitor ID from header or generate one
+      const visitorId = req.headers['x-visitor-id'];
+      if (visitorId) {
+        const hasViewed = article.anonymousViews.some(v => v.visitorId === visitorId);
+        if (!hasViewed) {
+          article.anonymousViews.push({ visitorId });
+          article.viewers += 1;
+          viewIncremented = true;
+        }
+      } else {
+        // No visitor ID, increment anyway (fallback for old clients)
+        article.viewers += 1;
+        viewIncremented = true;
+      }
+    }
+    
+    if (viewIncremented) {
+      await article.save();
+    }
     
     // If user is authenticated, include their interaction status
     let articleResponse = article.toObject();

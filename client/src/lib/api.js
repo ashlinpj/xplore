@@ -3,6 +3,16 @@ import axios from 'axios';
 // Use environment variable for API URL, default to /api for development (Vite proxy)
 const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
+// Generate or get visitor ID for anonymous view tracking
+const getVisitorId = () => {
+  let visitorId = localStorage.getItem('visitorId');
+  if (!visitorId) {
+    visitorId = 'v_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+    localStorage.setItem('visitorId', visitorId);
+  }
+  return visitorId;
+};
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -10,13 +20,15 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
+// Add token and visitor ID to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Add visitor ID for view tracking
+    config.headers['x-visitor-id'] = getVisitorId();
     return config;
   },
   (error) => {

@@ -81,6 +81,14 @@ const articleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  viewedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  anonymousViews: [{
+    visitorId: String,
+    viewedAt: { type: Date, default: Date.now }
+  }],
   bookmarkedBy: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
