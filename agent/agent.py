@@ -73,9 +73,13 @@ async def my_agent(ctx: agents.JobContext):
     )
     
     # Start the session with our custom agent
+    # Don't close session when participant disconnects - let it be more resilient
     await session.start(
         room=ctx.room,
         agent=TechNewsAssistant(),
+        room_input_options=agents.RoomInputOptions(
+            close_on_disconnect=False,  # Keep session open even if participant briefly disconnects
+        ),
     )
     
     # Generate initial greeting

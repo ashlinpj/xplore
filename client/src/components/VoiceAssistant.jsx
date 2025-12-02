@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   LiveKitRoom,
   useVoiceAssistant,
@@ -8,6 +8,7 @@ import {
   useConnectionState,
   useMaybeRoomContext,
 } from '@livekit/components-react';
+import { RoomOptions, ConnectionState } from 'livekit-client';
 import '@livekit/components-styles';
 import { Mic, MicOff, Phone, PhoneOff, Bot, Loader2, Volume2, X } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -248,13 +249,17 @@ export function VoiceAssistant() {
             options={{
               disconnectOnPageLeave: false,
               adaptiveStream: false,
+              stopLocalTrackOnUnpublish: false,
+            }}
+            connectOptions={{
+              autoSubscribe: true,
+            }}
+            onConnected={() => {
+              console.log('Connected to LiveKit room successfully');
             }}
             onDisconnected={(reason) => {
               console.log('Disconnected from room, reason:', reason);
-              // Only clear connection if not a temporary disconnect
-              if (reason !== 'DUPLICATE_IDENTITY') {
-                setError('Disconnected: ' + (reason || 'Connection lost'));
-              }
+              // Don't immediately show error - user might have intentionally disconnected
               setConnectionDetails(null);
             }}
             onError={(err) => {
