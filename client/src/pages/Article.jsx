@@ -5,7 +5,7 @@ import { LiveTicker } from '../components/LiveTicker';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/Avatar';
-import { ThumbsUp, ThumbsDown, Share2, Eye, MessageSquare, Calendar, ArrowLeft, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Share2, Eye, Calendar, ArrowLeft, Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { articlesAPI } from '../lib/api';
 import { useToast } from '../context/ToastContext';
@@ -297,9 +297,6 @@ export default function ArticlePage() {
             </div>
             
             <div className="flex gap-4">
-              <Button variant="ghost" className="gap-2">
-                <MessageSquare className="w-4 h-4" /> Comments (12)
-              </Button>
               <Button variant="ghost" className="gap-2" onClick={handleShare}>
                 <Share2 className="w-4 h-4" /> Share
               </Button>
